@@ -8,39 +8,56 @@ const Button = ({
   size = 'md',
   className = '',
   disabled = false,
+  loading = false,
   onClick = () => {},
   type = 'button',
+  icon = null,
   ...props
 }) => {
   const variants = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-900',
-    outline: 'border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white',
-    ghost: 'text-gray-700 hover:bg-gray-100',
-    danger: 'bg-red-600 hover:bg-red-700 text-white',
-    gradient: 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white'
+    primary: 'bg-accent text-white hover:bg-accent/90 focus:ring-accent/50 shadow-lg hover:shadow-glow',
+    secondary: 'bg-primary text-text border border-secondary hover:bg-secondary/10 focus:ring-secondary/50',
+    accent: 'bg-accent text-white hover:bg-accent/90 focus:ring-accent/50 glow-accent',
+    ghost: 'text-text hover:bg-primary/50 focus:ring-secondary/30',
+    outline: 'border-2 border-accent text-accent hover:bg-accent hover:text-white focus:ring-accent/50',
+    danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500/50',
+    gradient: 'bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70 text-white shadow-lg hover:shadow-glow-lg',
+    glass: 'card-glass text-text hover:bg-primary/80 backdrop-blur-md'
   };
 
   const sizes = {
+    xs: 'px-2 py-1 text-xs',
     sm: 'px-3 py-2 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg',
-    xl: 'px-8 py-4 text-xl'
+    md: 'px-6 py-3 text-base',
+    lg: 'px-8 py-4 text-lg',
+    xl: 'px-12 py-5 text-xl'
   };
 
-  const baseClasses = 'font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[0.97] active:scale-[0.97]';
+  const baseClasses = 'font-semibold rounded-xl transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden';
 
-  const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`;
+  const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className} ${loading ? 'cursor-wait' : ''}`;
 
   return (
     <button
       type={type}
       className={classes}
-      disabled={disabled}
+      disabled={disabled || loading}
       onClick={onClick}
       {...props}
     >
-      {children}
+      {loading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-inherit">
+          <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
+      
+      <div className={`flex items-center justify-center space-x-2 ${loading ? 'opacity-0' : 'opacity-100'}`}>
+        {icon && <span className="flex-shrink-0">{icon}</span>}
+        <span>{children}</span>
+      </div>
+      
+      {/* Ripple effect overlay */}
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
     </button>
   );
 };

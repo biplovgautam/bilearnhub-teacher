@@ -1,18 +1,44 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext } from 'react';
+import React, { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { 
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  User as FirebaseUser
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../lib/firebase';
 
-const AuthContext = createContext({
+// Type definitions
+interface AuthUser extends FirebaseUser {
+  role?: string;
+  subject?: string;
+  experience?: string;
+}
+
+interface AdditionalData {
+  provider?: string;
+  role?: string;
+  subject?: string;
+  experience?: string;
+  [key: string]: string | undefined;
+}
+
+interface AuthContextType {
+  user: AuthUser | null;
+  loading: boolean;
+  error: string | null;
+  signInWithEmail: (email: string, password: string) => Promise<{ user: AuthUser | null; error: string | null }>;
+  signUpWithEmail: (email: string, password: string, additionalData?: AdditionalData) => Promise<{ user: AuthUser | null; error: string | null }>;
+  signInWithGoogle: (role?: string) => Promise<{ user: AuthUser | null; error: string | null }>;
+  logout: () => Promise<{ error: string | null }>;
+}
+
+const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   error: null,
@@ -22,10 +48,14 @@ const AuthContext = createContext({
   logout: async () => ({ error: null })
 });
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider = ({ children }: AuthProviderProps) => {
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -35,13 +65,9 @@ export const AuthProvider = ({ children }) => {
         const userData = userDoc.exists() ? userDoc.data() : {};
         
         setUser({
-          uid: firebaseUser.uid,
-          email: firebaseUser.email,
-          displayName: firebaseUser.displayName,
-          photoURL: firebaseUser.photoURL,
-          emailVerified: firebaseUser.emailVerified,
+          ...firebaseUser,
           ...userData
-        });
+        } as AuthUser);
       } else {
         setUser(null);
       }
@@ -51,7 +77,7 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  const createUserProfile = async (user, additionalData = {}) => {
+  const createUserProfile = async (user: FirebaseUser, additionalData: AdditionalData = {}) => {
     if (!user) return;
     
     const userRef = doc(db, 'users', user.uid);
@@ -98,9 +124,10 @@ export const AuthProvider = ({ children }) => {
             ...additionalData
           });
         }
-      } catch (error) {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         console.error('Error creating user profile:', error);
-        throw error;
+        throw new Error(errorMessage);
       }
     } else {
       // Update last sign in
@@ -110,19 +137,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signInWithEmail = async (email, password) => {
+  const signInWithEmail = async (email: string, password: string) => {
     try {
       setError(null);
       const result = await signInWithEmailAndPassword(auth, email, password);
       await createUserProfile(result.user, { provider: 'email' });
-      return { user: result.user, error: null };
-    } catch (error) {
-      setError(error.message);
-      return { user: null, error: error.message };
+      return { user: result.user as AuthUser, error: null };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setError(errorMessage);
+      return { user: null, error: errorMessage };
     }
   };
 
-  const signUpWithEmail = async (email, password, additionalData = {}) => {
+  const signUpWithEmail = async (email: string, password: string, additionalData: AdditionalData = {}) => {
     try {
       setError(null);
       const result = await createUserWithEmailAndPassword(auth, email, password);
@@ -130,14 +158,15 @@ export const AuthProvider = ({ children }) => {
         provider: 'email',
         ...additionalData
       });
-      return { user: result.user, error: null };
-    } catch (error) {
-      setError(error.message);
-      return { user: null, error: error.message };
+      return { user: result.user as AuthUser, error: null };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setError(errorMessage);
+      return { user: null, error: errorMessage };
     }
   };
 
-  const signInWithGoogle = async (role = 'student') => {
+  const signInWithGoogle = async (role: string = 'student') => {
     try {
       setError(null);
       const provider = new GoogleAuthProvider();
@@ -146,10 +175,11 @@ export const AuthProvider = ({ children }) => {
         provider: 'google',
         role 
       });
-      return { user: result.user, error: null };
-    } catch (error) {
-      setError(error.message);
-      return { user: null, error: error.message };
+      return { user: result.user as AuthUser, error: null };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setError(errorMessage);
+      return { user: null, error: errorMessage };
     }
   };
 
@@ -158,13 +188,14 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       await signOut(auth);
       return { error: null };
-    } catch (error) {
-      setError(error.message);
-      return { error: error.message };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      setError(errorMessage);
+      return { error: errorMessage };
     }
   };
 
-  const value = {
+  const value: AuthContextType = {
     user,
     loading,
     error,
@@ -174,14 +205,10 @@ export const AuthProvider = ({ children }) => {
     logout
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return React.createElement(AuthContext.Provider, { value }, children);
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');

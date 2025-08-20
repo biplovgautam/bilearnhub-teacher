@@ -1,244 +1,284 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Button from '../../components/Button';
-import LottiePlayer from '../../components/LottiePlayer';
-import Navbar from '../../components/layout/Navbar';
 import { useAuth } from '../../hooks/useAuth';
-import { animationPresets } from '../../utils/animations';
+import Button from '../../components/Button';
+import Navbar from '../../components/layout/Navbar';
 import { 
-  AcademicCapIcon, 
+  UserGroupIcon, 
   ChartBarIcon, 
+  SparklesIcon,
+  PlusIcon,
+  ClockIcon,
   TrophyIcon,
   BookOpenIcon,
-  UserIcon,
-  Cog6ToothIcon,
-  QuestionMarkCircleIcon,
-  ArrowRightOnRectangleIcon
+  VideoCameraIcon,
+  DocumentTextIcon,
+  BellIcon,
+  GlobeAltIcon
 } from '@heroicons/react/24/outline';
 
-export default function StudentDashboard() {
+export default function EducatorDashboard() {
   const { user, logout } = useAuth();
+  const router = useRouter();
 
-  const handleLogout = async () => {
-    await logout();
-  };
+  useEffect(() => {
+    if (!user) {
+      router.push('/login');
+    }
+  }, [user, router]);
 
-  // Mock data - in real app, this would come from API/Firestore
-  const studentStats = {
-    coursesEnrolled: 0,
-    progress: 0,
-    certificates: 0
-  };
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 mx-auto border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-secondary">Loading your educator dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const stats = [
+    { label: 'Active Courses', value: '8', change: '+2 this month', icon: BookOpenIcon },
+    { label: 'Total Students', value: '247', change: '+18 this week', icon: UserGroupIcon },
+    { label: 'Course Completion', value: '94%', change: '+5% improvement', icon: TrophyIcon },
+    { label: 'Global Reach', value: '12', change: 'Countries reached', icon: GlobeAltIcon }
+  ];
+
+  const quickActions = [
+    { title: 'Create New Course', description: 'Design your next masterpiece', icon: PlusIcon, href: '#' },
+    { title: 'Live Session', description: 'Start teaching right now', icon: VideoCameraIcon, href: '#' },
+    { title: 'Student Analytics', description: 'Track learning progress', icon: ChartBarIcon, href: '#' },
+    { title: 'Course Library', description: 'Manage your content', icon: DocumentTextIcon, href: '#' }
+  ];
+
+  const recentActivity = [
+    { type: 'course', title: 'Mathematics Fundamentals', action: 'New enrollment', time: '2 hours ago', students: 5 },
+    { type: 'completion', title: 'Physics Mastery', action: 'Course completed', time: '4 hours ago', students: 12 },
+    { type: 'feedback', title: 'Chemistry Basics', action: 'New reviews received', time: '6 hours ago', students: 8 },
+    { type: 'milestone', title: 'AI & Machine Learning', action: 'Milestone reached', time: '1 day ago', students: 25 }
+  ];
 
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900 pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          {/* Welcome Section */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-              Welcome to Your 
-              <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                {" "}Learning Hub
-              </span>
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
-              Ready to continue your learning journey, {user?.displayName || user?.email || 'Learner'}?
-            </p>
+      <div className="min-h-screen bg-background relative overflow-hidden">
+        {/* Enhanced Background Effects */}
+        <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-background to-accent/10" />
+        <div className="absolute top-1/4 -left-20 w-96 h-96 bg-gradient-to-r from-accent/20 to-transparent rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-gradient-to-l from-accent/15 to-transparent rounded-full blur-3xl animate-float animation-delay-2000" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-accent/5 rounded-full blur-2xl animate-pulse" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-16">
+          {/* Enhanced Welcome Header */}
+          <div className="mb-12 group">
+            <div className="card-glass p-8 rounded-3xl border border-secondary/20 shadow-2xl backdrop-blur-xl hover:shadow-accent/20 transition-all duration-500">
+              <div className="flex flex-col lg:flex-row items-center justify-between space-y-6 lg:space-y-0">
+                <div className="space-y-4">
+                  <div className="inline-flex items-center px-4 py-2 bg-accent/10 border border-accent/30 rounded-full text-accent text-sm font-medium backdrop-blur-sm hover:bg-accent/20 transition-all duration-300">
+                    <SparklesIcon className="w-4 h-4 mr-2 animate-pulse" />
+                    Educator Dashboard
+                  </div>
+                  <h1 className="text-4xl md:text-5xl font-bold">
+                    <span className="bg-gradient-to-r from-accent via-accent/90 to-accent/70 bg-clip-text text-transparent animate-glow">
+                      Welcome back,
+                    </span>
+                    <br />
+                    <span className="text-text group-hover:text-accent transition-colors duration-500">
+                      {user.displayName || user.email?.split('@')[0] || 'Educator'}!
+                    </span>
+                  </h1>
+                  <p className="text-xl text-secondary group-hover:text-text transition-colors duration-300">
+                    Continue inspiring minds and transforming lives through education
+                  </p>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button 
+                    variant="gradient"
+                    size="lg"
+                    className="bg-gradient-to-r from-accent to-accent/80 text-background shadow-xl hover:shadow-2xl hover:shadow-accent/25 transition-all duration-300 hover:scale-105 group"
+                  >
+                    <PlusIcon className="w-5 h-5 mr-2 group-hover:rotate-90 transition-transform duration-300" />
+                    Create Course
+                  </Button>
+                  <Button 
+                    variant="glass"
+                    size="lg"
+                    className="border-2 border-secondary/30 text-secondary hover:text-accent hover:border-accent/50 backdrop-blur-sm"
+                  >
+                    <BellIcon className="w-5 h-5 mr-2" />
+                    Notifications
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Main Dashboard Grid */}
+          {/* Enhanced Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+            {stats.map((stat, index) => (
+              <div key={index} className="group relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-accent/10 to-accent/20 rounded-2xl blur-xl group-hover:blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                <div className="relative card-glass rounded-2xl p-6 shadow-xl border border-secondary/20 hover:border-accent/40 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-accent/10">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-accent to-accent/80 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-accent/30 group-hover:scale-110 transition-all duration-300">
+                      <stat.icon className="w-6 h-6 text-background" />
+                    </div>
+                    <div className="text-right">
+                      <div className="text-3xl font-bold text-text group-hover:text-accent transition-colors duration-300 font-mono">
+                        {stat.value}
+                      </div>
+                      <div className="text-sm text-secondary group-hover:text-text transition-colors duration-300">
+                        {stat.label}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-accent font-medium flex items-center">
+                    <div className="w-2 h-2 bg-accent rounded-full mr-2 animate-pulse" />
+                    {stat.change}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Main Content - Takes 2 columns */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Profile Card */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700">
-                <div className="flex items-center space-x-6 mb-8">
-                  <div className="w-20 h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                    {user?.photoURL ? (
-                      <img 
-                        src={user.photoURL} 
-                        alt="Profile" 
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-2xl font-bold text-white">
-                        {(user?.displayName || user?.email || 'S')[0].toUpperCase()}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {user?.displayName || 'Student'}
-                    </h2>
-                    <p className="text-gray-600 dark:text-gray-400">{user?.email}</p>
-                    <span className="inline-block mt-2 px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-full">
-                      Student
-                    </span>
-                  </div>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-3 gap-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 mx-auto mb-3 bg-blue-100 dark:bg-blue-900 rounded-xl flex items-center justify-center">
-                      <AcademicCapIcon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                      {studentStats.coursesEnrolled}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      Courses Enrolled
-                    </div>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="w-16 h-16 mx-auto mb-3 bg-green-100 dark:bg-green-900 rounded-xl flex items-center justify-center">
-                      <ChartBarIcon className="w-8 h-8 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                      {studentStats.progress}%
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      Progress
-                    </div>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="w-16 h-16 mx-auto mb-3 bg-purple-100 dark:bg-purple-900 rounded-xl flex items-center justify-center">
-                      <TrophyIcon className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                      {studentStats.certificates}
-                    </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      Certificates
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Quick Actions */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+            {/* Enhanced Quick Actions */}
+            <div className="lg:col-span-1">
+              <div className="card-glass rounded-2xl p-6 shadow-xl border border-secondary/20 h-fit backdrop-blur-xl hover:shadow-2xl hover:shadow-accent/10 transition-all duration-500">
+                <h2 className="text-xl font-bold text-text mb-6 flex items-center group">
+                  <SparklesIcon className="w-6 h-6 mr-3 text-accent group-hover:rotate-12 transition-transform duration-300" />
                   Quick Actions
-                </h3>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <Button 
-                    variant="gradient" 
-                    size="lg"
-                    className="flex items-center justify-center space-x-2"
-                    onClick={() => {}}
-                  >
-                    <BookOpenIcon className="w-5 h-5" />
-                    <span>Browse Courses</span>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="lg"
-                    className="flex items-center justify-center space-x-2"
-                    onClick={() => {}}
-                  >
-                    <UserIcon className="w-5 h-5" />
-                    <span>Edit Profile</span>
-                  </Button>
-                </div>
-              </div>
-
-              {/* Recent Activity */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
-                  Recent Activity
-                </h3>
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                    <BookOpenIcon className="w-8 h-8 text-gray-400" />
-                  </div>
-                  <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                    No Courses Yet
-                  </h4>
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Start your learning journey by enrolling in your first course.
-                  </p>
-                  <Button variant="gradient" onClick={() => {}}>
-                    Browse Courses
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Sidebar */}
-            <div className="space-y-8">
-              {/* Motivation Card */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-200 dark:border-gray-700">
-                <div className="text-center space-y-4">
-                  <LottiePlayer
-                    {...animationPresets.dashboard.student}
-                    className="mx-auto"
-                    fallback={
-                      <div className="w-48 h-48 mx-auto bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-xl flex items-center justify-center">
-                        <div className="text-center space-y-2">
-                          <div className="w-16 h-16 mx-auto bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                            <AcademicCapIcon className="w-8 h-8 text-white" />
+                </h2>
+                <div className="space-y-4">
+                  {quickActions.map((action, index) => (
+                    <Link key={index} href={action.href}>
+                      <div className="group p-4 rounded-xl bg-secondary/10 hover:bg-accent/10 hover:bg-gradient-to-r hover:from-accent/10 hover:to-accent/5 transition-all duration-300 cursor-pointer border border-transparent hover:border-accent/20 hover:shadow-lg backdrop-blur-sm">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-gradient-to-r from-accent to-accent/80 rounded-lg flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-110 transition-all duration-300">
+                            <action.icon className="w-5 h-5 text-background group-hover:scale-110 transition-transform duration-200" />
                           </div>
-                          <p className="text-gray-600 dark:text-gray-300 font-medium">Learning Excellence</p>
+                          <div className="flex-1">
+                            <h3 className="font-semibold text-text group-hover:text-accent transition-colors duration-300">
+                              {action.title}
+                            </h3>
+                            <p className="text-sm text-secondary group-hover:text-text transition-colors duration-300">
+                              {action.description}
+                            </p>
+                          </div>
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </div>
                         </div>
                       </div>
-                    }
-                  />
-                  <div>
-                    <h4 className="text-lg font-bold text-gray-900 dark:text-white">
-                      Keep Learning!
-                    </h4>
-                    <p className="text-gray-600 dark:text-gray-400 text-sm">
-                      Every step you take brings you closer to your goals. Keep pushing forward!
-                    </p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Enhanced Recent Activity & Analytics */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Enhanced Recent Activity */}
+              <div className="card-glass rounded-2xl p-6 shadow-xl border border-secondary/20 backdrop-blur-xl hover:shadow-2xl hover:shadow-accent/10 transition-all duration-500">
+                <h2 className="text-xl font-bold text-text mb-6 flex items-center group">
+                  <ClockIcon className="w-6 h-6 mr-3 text-accent group-hover:rotate-12 transition-transform duration-300" />
+                  Recent Activity
+                </h2>
+                <div className="space-y-4">
+                  {recentActivity.map((activity, index) => (
+                    <div key={index} className="group flex items-center space-x-4 p-4 rounded-xl bg-secondary/10 hover:bg-accent/10 hover:bg-gradient-to-r hover:from-accent/10 hover:to-accent/5 transition-all duration-300 border border-transparent hover:border-accent/20 cursor-pointer">
+                      <div className="relative">
+                        <div className="w-3 h-3 bg-accent rounded-full group-hover:scale-125 transition-transform duration-300"></div>
+                        <div className="absolute inset-0 w-3 h-3 bg-accent rounded-full animate-ping opacity-75"></div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <h3 className="font-medium text-text group-hover:text-accent transition-colors duration-300">
+                            {activity.title}
+                          </h3>
+                          <span className="text-sm text-secondary group-hover:text-text transition-colors duration-300">
+                            {activity.time}
+                          </span>
+                        </div>
+                        <p className="text-sm text-secondary group-hover:text-text transition-colors duration-300">
+                          {activity.action} • {activity.students} students
+                        </p>
+                      </div>
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Enhanced Course Performance */}
+              <div className="card-glass rounded-2xl p-6 shadow-xl border border-secondary/20 backdrop-blur-xl hover:shadow-2xl hover:shadow-accent/10 transition-all duration-500">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-bold text-text flex items-center group">
+                    <ChartBarIcon className="w-6 h-6 mr-3 text-accent group-hover:scale-110 transition-transform duration-300" />
+                    Course Performance
+                  </h2>
+                  <Button 
+                    variant="glass" 
+                    size="sm" 
+                    className="border-secondary/30 text-secondary hover:text-accent hover:border-accent/50 backdrop-blur-sm"
+                  >
+                    View All Analytics
+                  </Button>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="group text-center p-6 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/20 transition-all duration-300 cursor-pointer">
+                    <div className="text-3xl font-bold text-accent group-hover:scale-110 transition-transform duration-300 font-mono">
+                      156
+                    </div>
+                    <div className="text-sm text-secondary group-hover:text-text transition-colors duration-300 font-medium">
+                      Hours Taught
+                    </div>
+                  </div>
+                  <div className="group text-center p-6 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/20 transition-all duration-300 cursor-pointer">
+                    <div className="text-3xl font-bold text-accent group-hover:scale-110 transition-transform duration-300 font-mono">
+                      4.9
+                    </div>
+                    <div className="text-sm text-secondary group-hover:text-text transition-colors duration-300 font-medium">
+                      Avg Rating
+                    </div>
+                  </div>
+                  <div className="group text-center p-6 rounded-xl bg-gradient-to-br from-accent/10 to-accent/5 border border-accent/20 hover:border-accent/40 hover:shadow-lg hover:shadow-accent/20 transition-all duration-300 cursor-pointer">
+                    <div className="text-3xl font-bold text-accent group-hover:scale-110 transition-transform duration-300 font-mono">
+                      89%
+                    </div>
+                    <div className="text-sm text-secondary group-hover:text-text transition-colors duration-300 font-medium">
+                      Engagement
+                    </div>
                   </div>
                 </div>
               </div>
-
-              {/* Account Actions */}
-              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 border border-gray-200 dark:border-gray-700">
-                <h4 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                  Account
-                </h4>
-                <div className="space-y-3">
-                  <button className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                    <Cog6ToothIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    <span className="text-gray-700 dark:text-gray-300">Settings</span>
-                  </button>
-                  <button className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
-                    <QuestionMarkCircleIcon className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                    <span className="text-gray-700 dark:text-gray-300">Help & Support</span>
-                  </button>
-                  <button 
-                    onClick={handleLogout}
-                    className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200 text-red-600 dark:text-red-400"
-                  >
-                    <ArrowRightOnRectangleIcon className="w-5 h-5" />
-                    <span>Sign Out</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Teacher Portal Link */}
-              <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl shadow-xl p-6 text-white">
-                <h4 className="text-lg font-bold mb-2">
-                  Become a Teacher
-                </h4>
-                <p className="text-blue-100 text-sm mb-4">
-                  Share your knowledge and help others learn
-                </p>
-                <Link href="/teacher">
-                  <Button variant="secondary" size="sm" className="w-full" onClick={() => {}}>
-                    Explore Teaching
-                  </Button>
-                </Link>
-              </div>
             </div>
+          </div>
+
+          {/* Enhanced Sign Out Section */}
+          <div className="mt-12 text-center">
+            <Button
+              onClick={logout}
+              variant="glass"
+              className="text-red-400 border-red-400/30 hover:text-red-300 hover:border-red-300/50 hover:bg-red-400/10 backdrop-blur-sm transition-all duration-300"
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+              Sign Out
+            </Button>
           </div>
         </div>
       </div>

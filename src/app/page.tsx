@@ -1,13 +1,13 @@
 'use client';
 
-import HeroSection from '../components/HeroSection';
+import EducatorHeroSection from '../components/EducatorHeroSection';
 import Navbar from '../components/layout/Navbar';
 
-export default function Home() {
+export default function EducatorHome() {
   return (
     <>
       <Navbar />
-      <HeroSection />
+      <EducatorHeroSection />
     </>
   );
 }
